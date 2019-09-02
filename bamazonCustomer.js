@@ -77,11 +77,13 @@ function buyItem(){
 }
 
 function qtyCheck(ID, qty){
-    connection.query("SELECT stock_quantity FROM products WHERE ?", {item_id: ID}, function(err, res){
+    connection.query("SELECT stock_quantity, price FROM products WHERE ?", {item_id: ID}, function(err, res){
         if (err) throw err;
         
         if(res[0].stock_quantity - qty >= 0){
             var newQty = res[0].stock_quantity - qty;
+            var cost = res[0].price * res[0].stock_quantity;
+            console.log(chalk.green.bold("Transaction Successful!\n") + chalk.inverse("\nYour order totaled: " + cost + "\n"));
             updateStock(ID, newQty);
         } else {
             console.log(chalk.red.bold("\nInsufficient item stock.\n"));
