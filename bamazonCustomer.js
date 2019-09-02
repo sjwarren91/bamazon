@@ -10,10 +10,10 @@ var connection = mysql.createConnection({
     port: 3306
 });
 
+connection.connect();
 start();
 
 function start(){
-    connection.connect();
     getAll();
 }
 
@@ -68,17 +68,33 @@ function buyItem(){
                 console.log(chalk.red.bold("\nThat item does not exist.\n"));
                 getAll();
             } else {
-                qtyCheck(ans.item_id);
-                connection.end();
+                qtyCheck(ans.item_id, parseInt(ans.item_qty));
+                
             }
         });
     })
 
 }
 
-function qtyCheck(ID){
+function qtyCheck(ID, qty){
     connection.query("SELECT stock_quantity FROM products WHERE ?", {item_id: ID}, function(err, res){
         if (err) throw err;
-        console.log(res);
+        
+        if(res[0].stock_quantity - qty >= 0){
+            var newQty = res[0].stock_quantity - qty;
+            updateStock(ID, newQty);
+        } else {
+            console.log(chalk.red.bold("\nInsufficient item stock.\n"));
+            buyItem();
+        }
+
+    })
+}
+
+function updateStock(ID, newQty){
+    connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQty, ID], function(err){
+        if (err) throw err;
+        console.log("Ending...")
+        connection.end();
     })
 }
