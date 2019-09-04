@@ -14,7 +14,27 @@ connection.connect();
 start();
 
 function start(){
-    getAll();
+
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What would you like to do?",
+            choices: ["Buy", "Quit"],
+            name: "choice"
+        }
+    ]).then(function(ans){
+
+        switch(ans.choice){
+            case "Buy":
+                getAll();
+                break;
+            case "Quit":
+                connection.end();
+                process.exit();
+        }
+
+    });
+
 }
 
 function getAll(){
@@ -23,7 +43,7 @@ function getAll(){
         // console.log(res);
         console.table(res);
         buyItem();
-    })
+    });
 }
 
 function buyItem(){
@@ -72,7 +92,7 @@ function buyItem(){
                 
             }
         });
-    })
+    });
 
 }
 
@@ -90,13 +110,13 @@ function qtyCheck(ID, qty){
             buyItem();
         }
 
-    })
+    });
 }
 
 function updateStock(ID, newQty){
     connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQty, ID], function(err){
         if (err) throw err;
         console.log("Ending...")
-        connection.end();
-    })
+        start();
+    });
 }
