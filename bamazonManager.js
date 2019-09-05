@@ -11,13 +11,10 @@ var connection = mysql.createConnection({
     port: 3306
 });
 
-var IDs = [];
-
 connection.connect();
 start();
 
 function start(){
-    getIDs();
     inquirer.prompt([
         {
             type: "list",
@@ -34,7 +31,7 @@ function start(){
                 viewLowProducts();
                 break;
             case "Add to Inventory":
-                reStock();
+                getIDs();
                 break;
             case "Add New Product":
                 addItem();
@@ -144,7 +141,9 @@ function getIDs(){
             table.push([element.item_id, element.product_name]);
         });
 
-        IDs = table.toString();
+        console.log(table.toString());
+
+        reStock();
     })
 }
 
