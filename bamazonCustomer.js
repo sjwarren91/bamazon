@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var chalk = require("chalk");
+var Table = require("cli-table")
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -40,8 +41,18 @@ function start(){
 function getAll(){
     connection.query("SELECT * FROM products", function(err, res){
         if (err) throw err;
-        // console.log(res);
-        console.table(res);
+        
+        var table = new Table({
+            head:["Item ID", "Item Name", "Department", "Price", "Stock"],
+            colWidths: [10, 25, 15, 10, 10]
+        })
+
+        res.forEach(el => {
+            table.push([el.item_id, el.product_name, el.department_name, "$" + el.price, el.stock_quantity]);
+        });
+
+        console.log(table.toString() + "\n");
+
         buyItem();
     });
 }
@@ -102,8 +113,8 @@ function qtyCheck(ID, qty){
         
         if(res[0].stock_quantity - qty >= 0){
             var newQty = res[0].stock_quantity - qty;
-            var cost = res[0].price * res[0].stock_quantity;
-            console.log(chalk.green.bold("Transaction Successful!\n") + chalk.inverse("\nYour order totaled: " + cost + "\n"));
+            var cost = res[0].price * qty;
+            console.log(chalk.green.bold("\nTransaction Successful!\n") + chalk.inverse("\nYour order totaled: $" + cost + "\n"));
             updateStock(ID, newQty);
         } else {
             console.log(chalk.red.bold("\nInsufficient item stock.\n"));
@@ -116,7 +127,6 @@ function qtyCheck(ID, qty){
 function updateStock(ID, newQty){
     connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQty, ID], function(err){
         if (err) throw err;
-        console.log("Ending...")
         start();
     });
 }
