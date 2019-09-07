@@ -9,3 +9,11 @@ VALUES ("iPhone", "Electronics", 999, 50),
 ("Monopoly", "Toys & Games", 25, 300),
 ("Electric Drill", "Tools", 100, 50),
 ("Watch", "Accessories", 500, 20);
+
+INSERT INTO departments (department_name, overhead_costs)
+VALUES ("Electronics", 1500),
+("Clothing", 750),
+("Toys & Games", 500),
+("Tools", 1000),
+("Accessories", 1250),
+("Books", 300);

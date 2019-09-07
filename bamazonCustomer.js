@@ -108,14 +108,17 @@ function buyItem(){
 }
 
 function qtyCheck(ID, qty){
-    connection.query("SELECT stock_quantity, price FROM products WHERE ?", {item_id: ID}, function(err, res){
+    connection.query("SELECT stock_quantity, price, product_sales FROM products WHERE ?", {item_id: ID}, function(err, res){
         if (err) throw err;
         
         if(res[0].stock_quantity - qty >= 0){
             var newQty = res[0].stock_quantity - qty;
             var cost = res[0].price * qty;
+            console.log(cost);
+            console.log(res[0].product_sales);
+            var sales = res[0].product_sales + cost;
             console.log(chalk.green.bold("\nTransaction Successful!\n") + chalk.inverse("\nYour order totaled: $" + cost + "\n"));
-            updateStock(ID, newQty);
+            updateStock(ID, newQty, sales);
         } else {
             console.log(chalk.red.bold("\nInsufficient item stock.\n"));
             buyItem();
@@ -124,8 +127,8 @@ function qtyCheck(ID, qty){
     });
 }
 
-function updateStock(ID, newQty){
-    connection.query("UPDATE products SET stock_quantity=? WHERE item_id=?", [newQty, ID], function(err){
+function updateStock(ID, newQty, sales){
+    connection.query("UPDATE products SET stock_quantity=?, product_sales=? WHERE item_id=?", [newQty, sales, ID], function(err){
         if (err) throw err;
         start();
     });
